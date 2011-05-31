@@ -1,14 +1,16 @@
 Link TV Player
 ==============
-
-The Link TV Player is a standalone Flash® video player, written in ActionScript 3.
+Link TV Player is a standalone Flash® video player, written in ActionScript 3. 
+Developed for [ViewChange.org](http://www.viewchange.org) and
+[Link TV Platform](https://github.com/definitionstudio/linktv_platform),
+the player supports streaming and progressive video sources, as well as YouTube videos.
 
 
 Features
 --------
-* Streaming (RTMP) or progressive (HTTP) video sources
-* MP4 (H.264) and FLV/F4V video support
-* YouTube video support
+* Streaming (RTMP) or progressive (HTTP) video playback
+* MP4 (H.264) and FLV/F4V media support
+* YouTube video support, via the [YouTube Chromeless Player API](http://code.google.com/apis/youtube/flash_api_reference.html).
 * "High quality" video option
 * Segment/chapter support
 * Embedded display mode
@@ -87,6 +89,12 @@ External Methods
 ----------------
 * getCurrentTime(): Returns playhead time, in seconds
 * seekToSegment(segmentId): Seek to beginning of segment
+
+
+Examples
+--------
+See the _examples_ directory for embedding examples using [SWFObject](http://code.google.com/p/swfobject/). You may encounter Flash Player security warnings 
+if attempting to run the files locally.
 
 
 Acknowledgements
