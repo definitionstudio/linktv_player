@@ -91,22 +91,22 @@ package com.definition
 		
 		// video data
 		internal var videoStart:Number = 0;
-		internal var videoTitle:String;
+		internal var videoTitle:String = null;
 		internal var videoDuration:Number = 0;
 		internal var videoSegments:Array = new Array();
 		internal var videoFiles:Array = new Array();
 		internal var mediaServerURL:String = null;			// set to null for progressive video
 		
-		private var videoPermalinkId:String;
-		private var videoPermalinkURL:String;
-		private var videoDescription:String;
+		private var videoPermalinkId:String = null;
+		private var videoPermalinkURL:String = null;
+		private var videoDescription:String = null;
 		private var videoMediaType:String = 'internal';		// default
 		
 		internal var videoSegmentThumbs:Array = new Array();
 		private var videoSegmentThumbLoadId:int = 0;
 		
 		internal var currentVideoSegment:Number = 0;
-		internal var scrubPlayState:String;
+		internal var scrubPlayState:String = null;
 		internal var isHighQuality:Boolean = false;
 		internal var isLargeSize:Boolean = false;			// player dimensions (expanded)
 		
@@ -389,15 +389,19 @@ package com.definition
 			if(config.posterAttribution) posterImgAttribution = config.posterAttribution;
 			
 			// video metadata
-			videoPermalinkId = config.permalinkId;
-			videoPermalinkURL = config.permalinkUrl;
-			videoTitle = config.title;
-			videoDescription = config.description;
+			if(config.permalinkId) videoPermalinkId = config.permalinkId;
+			if(config.permalinkUrl) videoPermalinkURL = config.permalinkUrl;
+			if(config.title) videoTitle = config.title;
+			if(config.description) videoDescription = config.description;
 			if(config.additionalInfo) {
-				videoDescription += '<br><br><p class="more-info-header">MORE INFO</p>';
-				videoDescription += config.additionalInfo;
+				if(videoDescription) {
+					videoDescription += '<br><br><p class="more-info-header">MORE INFO</p>';
+					videoDescription += config.additionalInfo;
+				} else {
+					videoDescription = config.additionalInfo;
+				}
 			}
-			videoDuration = config.duration;			// used for building controls before video metadata is loaded
+			if(config.duration) videoDuration = config.duration;			// used for building controls before video metadata is loaded
 						
 			// parse video files
 			for each (var media:Object in config.media) {
@@ -408,24 +412,29 @@ package com.definition
 			videoFiles.sortOn("filesize", Array.NUMERIC);
 			
 			// parse SEGMENTS
-			for each (var segment in config.segments) {
-				videoSegments.push({ id: segment.id, time: Number(segment.startTime), title: segment.title, thumbnail_url: segment.thumbnail });
-			}
-			
-			// Sort segments by start time
-			videoSegments.sortOn("time", Array.NUMERIC);
-			
-			// set initial video segment
-			for(var i:Number = videoSegments.length-1; i>=0; i--) {
-				if(videoStart >= videoSegments[i].time) {
-					currentVideoSegment = i;
-					break;
+			if(config.segments) {
+				for each (var segment in config.segments) {
+					videoSegments.push({ id: segment.id, time: Number(segment.startTime), title: segment.title, thumbnail_url: segment.thumbnail });
+				}
+				// Sort segments by start time
+				videoSegments.sortOn("time", Array.NUMERIC);
+				
+				// set initial video segment
+				for(var i:Number = videoSegments.length-1; i>=0; i--) {
+					if(videoStart >= videoSegments[i].time) {
+						currentVideoSegment = i;
+						break;
+					}
 				}
 			}
 			
-			// init settings
+			// init player settings
 			for(var s:String in defaultSettings) {
-				settings[s] = (config.player[s] == undefined) ? defaultSettings[s] : config.player[s];
+				if(config.player) {
+					settings[s] = (config.player[s] == undefined) ? defaultSettings[s] : config.player[s];
+				} else {
+					settings[s] = defaultSettings[s];
+				}
 			}
 			
 			// init styles
@@ -799,38 +808,40 @@ package com.definition
 			header.addChild(headerTitleSprite);
 			
 			// descr text
-			headerDescr = new TextField();
-			headerDescr.x = posterImgLoaded ? thumbMask.x+thumbMask.width+11 : padding;
-			headerDescr.y = 35;
-			headerDescr.width = posterImgLoaded ? stage.stageWidth-(thumbMask.x+thumbMask.width)-70 : stage.stageWidth-(padding*2)-70;
-			headerDescr.height = 20;
-			headerDescr.selectable = false;
-			headerDescr.mouseWheelEnabled = false;
-			headerDescr.multiline = true;
-			headerDescr.wordWrap = true;
-			headerDescr.defaultTextFormat = headerDescrTF;
-			headerDescr.styleSheet = styles;
-			headerDescr.htmlText = videoDescription;
-			header.addChild(headerDescr);
-			
-			var descrMetrics:TextLineMetrics = headerDescr.getLineMetrics(0);
-			
-			// more link
-			headerMore = new TextField();
-			headerMore.x = headerDescr.x + descrMetrics.width + 5;
-			headerMore.y = 35;
-			headerMore.width = 50;
-			headerMore.height = 20;
-			headerMore.selectable = false;
-			headerMore.defaultTextFormat = headerMoreLinkTF;
-			headerMore.text = "(more...)";
-			
-			var headerMoreSprite:Sprite = new Sprite();		// workaround for no buttonMode support for TextFields
-			headerMoreSprite.addChild(headerMore);
-			headerMoreSprite.addEventListener(MouseEvent.CLICK, headerMoreClick);
-			headerMoreSprite.buttonMode = true;
-			headerMoreSprite.mouseChildren = false;
-			header.addChild(headerMoreSprite);
+			if(videoDescription) {
+				headerDescr = new TextField();
+				headerDescr.x = posterImgLoaded ? thumbMask.x+thumbMask.width+11 : padding;
+				headerDescr.y = 35;
+				headerDescr.width = posterImgLoaded ? stage.stageWidth-(thumbMask.x+thumbMask.width)-70 : stage.stageWidth-(padding*2)-70;
+				headerDescr.height = 20;
+				headerDescr.selectable = false;
+				headerDescr.mouseWheelEnabled = false;
+				headerDescr.multiline = true;
+				headerDescr.wordWrap = true;
+				headerDescr.defaultTextFormat = headerDescrTF;
+				headerDescr.styleSheet = styles;
+				headerDescr.htmlText = videoDescription;
+				header.addChild(headerDescr);
+
+				var descrMetrics:TextLineMetrics = headerDescr.getLineMetrics(0);
+
+				// more link
+				headerMore = new TextField();
+				headerMore.x = headerDescr.x + descrMetrics.width + 5;
+				headerMore.y = 35;
+				headerMore.width = 50;
+				headerMore.height = 20;
+				headerMore.selectable = false;
+				headerMore.defaultTextFormat = headerMoreLinkTF;
+				headerMore.text = "(more...)";
+
+				var headerMoreSprite:Sprite = new Sprite();		// workaround for no buttonMode support for TextFields
+				headerMoreSprite.addChild(headerMore);
+				headerMoreSprite.addEventListener(MouseEvent.CLICK, headerMoreClick);
+				headerMoreSprite.buttonMode = true;
+				headerMoreSprite.mouseChildren = false;
+				header.addChild(headerMoreSprite);
+			}
 			
 			header.visible = false;
 			addChild(header);

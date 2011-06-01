@@ -309,7 +309,12 @@
 			bInfo.segmentTitle.embedFonts = true;
 			bInfo.segmentTitle.antiAliasType = AntiAliasType.ADVANCED;
 			bInfo.segmentTitle.text = 'Now watching: ';
-			if(player.videoSegments[player.currentVideoSegment].title) bInfo.segmentTitle.appendText(player.videoSegments[player.currentVideoSegment].title);
+			try {
+				if(player.videoSegments[player.currentVideoSegment].title) bInfo.segmentTitle.appendText(player.videoSegments[player.currentVideoSegment].title);
+			} catch (error:Error) {
+				trace("Segment title not present: Skipping");
+			}
+			
 			
 			controls.addChild(bInfo);
 			
@@ -448,7 +453,7 @@
 			player.videoSegments[newSegmentId].sprite.removeChildAt(0);
 			player.videoSegments[newSegmentId].sprite.addChild(newBox);
 			
-			if(player.videoSegments[newSegmentId].title != "") {
+			if(player.videoSegments[newSegmentId].title) {
 				bInfo.segmentTitle.text = "Now watching: " + player.videoSegments[newSegmentId].title;
 			} else {
 				bInfo.segmentTitle.text = "Now watching: Segment " + (newSegmentId+1);
