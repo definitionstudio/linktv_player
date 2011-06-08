@@ -368,12 +368,10 @@ package com.definition
 			try {
 				if(config.mediaStatus.available) videoStatusAvailable = true;
 				if(!videoStatusAvailable && config.mediaStatus.message != '') videoStatusMsg = config.mediaStatus.message;
+				if(!config.media.length) videoStatusAvailable = false;
 			} catch(e:Error) {
-				// use defaults (video not available)
+				videoStatusAvailable = false;
 			}
-			
-			// check media files
-			if(!config.media.length) videoStatusAvailable = false;
 			
 			if(!videoStatusAvailable) {
 				displayMessage(videoStatusMsg);		// error & die
