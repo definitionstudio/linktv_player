@@ -36,6 +36,8 @@ Configuration
 * playerId (string): Player DOM ID (required when passing eventHandler)
 * eventHandler (string): JavaScript callback for handling player events
 * embedded (boolean): true for embedded display mode (iframe)
+* fullscreen (boolean): false to disable fullscreen controls
+* resize (boolean): true to enable resize controls (requires _eventHandler_, ignored if _embedded_ = true)
 * permalinkId (string): Video GUID
 * permalinkUrl (string): Video URL
 * streamHost (string): RTMP host, with prefix
@@ -91,10 +93,31 @@ External Methods
 * seekToSegment(segmentId): Seek to beginning of segment
 
 
+Player Events
+-------------
+Player events are dispatched to the JavaScript callback function defined in the _eventHandler_ config option. The _eventHandler_ callback will receive a single event object argument. The following events are currently dispatched by the player:
+
+* segmentChange (object): for multi-segment videos, dispatched when playback of a new segment begins
+	* type (string): "segmentChange"
+	* segment (integer): ID of segment beginning playback
+	* playerId: player DOM ID
+* scaleUp (object): dispatched when resize control is clicked (scaling up)
+	* type (string): "scaleUp"
+	* playerId: player DOM ID
+* scaleDown (object): dispatched when resize control is clicked (scaling down)
+	* type (string): "scaleDown"
+	* playerId: player DOM ID
+
+
 Examples
 --------
 See the _examples_ directory for embedding examples using [SWFObject](http://code.google.com/p/swfobject/). You may encounter Flash Player security warnings 
 if attempting to run the files locally.
+
+
+Customization
+-------------
+You are free to modify the player without restriction. You will need Adobe Flash CS4 or higher to publish the player SWF.
 
 
 Acknowledgements
