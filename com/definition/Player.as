@@ -72,6 +72,8 @@ package com.definition
 		internal var flashVars:Object;
 		internal var embeddedMode:Boolean = false;
 		internal var externalEventHandler:String = null;	// JS event callback
+		internal var resizeEnabled:Boolean = false;
+		internal var fullscreenEnabled:Boolean = true;
 		private var playerDOMId:String = null;
 		
 		private var trackedEvents:Array = new Array();		// analytics tracking (one-time events)
@@ -355,7 +357,9 @@ package com.definition
 		
 		private function _parseConfig():void {
 			
-			if(config.embedded) embeddedMode = (config.embedded == true) ? true : false;
+			if(config.embedded) embeddedMode = true;
+			if(config.resize) resizeEnabled = true;
+			if(config.fullscreen == false) fullscreenEnabled = false;
 			if(config.eventHandler) externalEventHandler = config.eventHandler;
 			if(config.playerId) playerDOMId = config.playerId;
 			if(config.startTime) videoStart = Number(config.startTime);

@@ -236,7 +236,7 @@
 			
 			// Player SIZE
 			
-			if(controlsMode != 'fullscreen' && !player.embeddedMode && player.externalEventHandler != null) {
+			if(player.resizeEnabled && controlsMode != 'fullscreen' && !player.embeddedMode && player.externalEventHandler != null) {
 				
 				bScaleUp.y = yOffset;
 				bScaleUp.x = controlsWidth-(leftIndex*buttonWidth);
@@ -259,23 +259,26 @@
 			
 			// FULLSCREEN
 			
-			bFullScreen.y = yOffset;
-			bFullScreen.x = controlsWidth-(leftIndex*buttonWidth);
-			bFullScreen.buttonMode = true;
-			bFullScreen.visible = (controlsMode == 'fullscreen') ? false : true;
-			bFullScreen.toolTipText = "Fullscreen";
-			bFullScreen.addEventListener(MouseEvent.CLICK, fullScreenButtonClick);
-			controls.addChild(bFullScreen);
+			if(player.fullscreenEnabled) {
+				
+				bFullScreen.y = yOffset;
+				bFullScreen.x = controlsWidth-(leftIndex*buttonWidth);
+				bFullScreen.buttonMode = true;
+				bFullScreen.visible = (controlsMode == 'fullscreen') ? false : true;
+				bFullScreen.toolTipText = "Fullscreen";
+				bFullScreen.addEventListener(MouseEvent.CLICK, fullScreenButtonClick);
+				controls.addChild(bFullScreen);
 			
-			bExitFullScreen.y = yOffset;
-			bExitFullScreen.x = controlsWidth-(leftIndex*buttonWidth);
-			bExitFullScreen.buttonMode = true;
-			bExitFullScreen.visible = (controlsMode == 'fullscreen') ? true : false;
-			bExitFullScreen.toolTipText = "Exit Fullscreen";
-			bExitFullScreen.addEventListener(MouseEvent.CLICK, exitFullScreenButtonClick);
-			controls.addChild(bExitFullScreen);
+				bExitFullScreen.y = yOffset;
+				bExitFullScreen.x = controlsWidth-(leftIndex*buttonWidth);
+				bExitFullScreen.buttonMode = true;
+				bExitFullScreen.visible = (controlsMode == 'fullscreen') ? true : false;
+				bExitFullScreen.toolTipText = "Exit Fullscreen";
+				bExitFullScreen.addEventListener(MouseEvent.CLICK, exitFullScreenButtonClick);
+				controls.addChild(bExitFullScreen);
 			
-			leftIndex++;
+				leftIndex++;
+			}
 			
 			// ###
 			
