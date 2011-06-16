@@ -941,6 +941,7 @@ package com.definition
 					var request:URLRequest = new URLRequest(config.trackPlayUrl);				
 					var variables:URLVariables = new URLVariables();
 					variables._method = 'post';
+					if(videoPermalinkId) variables.permalink = videoPermalinkId;
 					if(config.userId) variables.user_id = config.userId;
 					request.method = URLRequestMethod.POST;
 					request.data = variables;
