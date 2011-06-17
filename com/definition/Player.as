@@ -278,6 +278,7 @@ package com.definition
 			segmentTitleTF.color = Utilities.convertHexColor(settings.segmentInfoTextColor);
 			segmentTitleTF.font = uiFont.fontName;
 			segmentTitleTF.size = 10;
+			segmentTitleTF.leading = 1;
 			
 			imgAttributionTF = new TextFormat();
 			imgAttributionTF.color = 0xDDDDDD

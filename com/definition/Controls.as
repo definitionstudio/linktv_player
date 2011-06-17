@@ -612,7 +612,7 @@
 			// adjust opacity
 			segmentHover.bg.alpha = Number(player.settings.segmentInfoBgOpacity);
 			
-			var padding:Number = 5;
+			var padding:Number = 7;
 			var segmentThumbPresent:Boolean = false;
 			var segmentThumbMask:thumbnailMask = new thumbnailMask();
 			
