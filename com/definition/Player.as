@@ -163,27 +163,55 @@ package com.definition
 		
 		// constructor
 		public function Player() {
-			
-			// init controls object
-			controls = new Controls(this);
+			// set XML defaults
+			XML.ignoreWhitespace = true;
+			XML.ignoreComments = true;
 			
 			// adjust stage scalemode & alignment
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
 			
-			// set XML defaults
-			XML.ignoreWhitespace = true;
-			XML.ignoreComments = true;
+			// ensure class is initialized
+			addEventListener(Event.ADDED_TO_STAGE, _addedToStageHandler);
+		}
+		
+		private function _addedToStageHandler(evt:Event):void {
+			removeEventListener(Event.ADDED_TO_STAGE, _addedToStageHandler);
+			// Internet Explorer stage size workaround
+			if(!stage.stageWidth || !stage.stageHeight) {
+				stage.addEventListener(Event.RESIZE, _ieStageSizeInit);
+			} else {
+				_init();
+			}
+		}
+		
+		private function _ieStageSizeInit(evt:Event):void {
+			trace('_ieStageSizeInit');
+			if(stage.stageWidth && stage.stageHeight) {
+				stage.removeEventListener(Event.RESIZE, _ieStageSizeInit);
+				_init();
+			}
+		}
 			
-			// init container sprites
-			videoContainer = new Sprite();
-			addChild(videoContainer);
+		private function _init():void {
+			trace('***** INIT *****');
+			trace('STAGE SIZE', stage.stageWidth, stage.stageHeight);
 			
-			posterImgContainer = new Sprite();
-			addChild(posterImgContainer);
+			// resize background
+			playerBackground.width = stage.stageWidth;
+			playerBackground.height = stage.stageHeight;
 			
 			// display load indicator
 			showLoading();
+			
+			// init controls object
+			controls = new Controls(this);
+
+			// init container sprites
+			videoContainer = new Sprite();
+			posterImgContainer = new Sprite();
+			addChild(videoContainer);
+			addChild(posterImgContainer);
 
 			// process flashVars
 			flashVars = this.loaderInfo.parameters;
@@ -211,10 +239,6 @@ package com.definition
 			stage.addEventListener(MouseEvent.MOUSE_UP, stageMouseRelease);				// handle all mouse up events (stop scrubbing, etc.)
 			stage.addEventListener(Event.MOUSE_LEAVE, stageMouseLeave);					// handle controls hiding
 			stage.addEventListener(MouseEvent.MOUSE_MOVE, stageMouseMove);
-						
-			// resize background
-			playerBackground.width = stage.stageWidth;
-			playerBackground.height = stage.stageHeight;
 			
 			// init default player settings
 			_setDefaults();
@@ -1011,8 +1035,9 @@ package com.definition
 		/* = STAGE EVENT HANDLERS = */
 		/* ======================== */
 		
-		// RESIZE handler (triggered via external JS call)
-		function stageResizeHandler(e:Event):void { 
+		// RESIZE handler
+		private function stageResizeHandler(e:Event):void {
+			trace('stageResizeHandler');
 			resizePlayer();
 		}
 		
@@ -1040,7 +1065,8 @@ package com.definition
 			}
 		}
 		
-		public function resizePlayer():void {		// called from stageResizeHandler
+		public function resizePlayer():void {
+			trace('resizePlayer', stage.stageWidth, stage.stageHeight)
 		
 			var resizeMode:String = (stage.displayState == StageDisplayState.FULL_SCREEN) ? 'fullscreen' : 'default';
 			
