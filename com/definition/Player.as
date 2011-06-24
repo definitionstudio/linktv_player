@@ -79,6 +79,9 @@ package com.definition
 		private var trackedEvents:Array = new Array();		// analytics tracking (one-time events)
 		private var GoogleTracker:AnalyticsTracker;
 		
+		private var videoViewTime:uint = 0;					// ms
+		private var videoViewTimeStart:uint = 0;
+		
 		private var config:Object = new Object();
 		private var configUrl:String = null;
 		private var configLoader:URLLoader;
@@ -535,14 +538,16 @@ package com.definition
 		private function videoAPIStateChangeHandler(evt:CustomEvent):void {
             trace('videoAPIStateChangeHandler dispatched');
 			trace('state:', evt.data.state);
+			stopVideoViewTimeTracker();
 			switch(evt.data.state) {
 				case video.STATE_PLAYING:
+					startVideoViewTimeTracker();
 					controls.updatePlayState(true);			// update controls
 					playOverlay.visible = false;			// hide overlay icon
 					posterImgContainer.visible = false;		// hide poster img
 					hideLoading();							// hide loader
 					hideHeader();							// hide header overlay
-					trackPlayEvent();						// analytics
+					trackEvent('Play');						// analytics
 					break;
 				case video.STATE_PAUSED:
 					controls.updatePlayState(false);		// update controls
@@ -920,28 +925,34 @@ package com.definition
 		/* = ANALYTICS = */
 		/* ============= */
 		
-		public function trackPlayEvent():void {
+		public function trackEvent(eventName:String, eventValue:uint = 0):void {
 			
-			var eventName:String = "Play";
+			var actionEvents:Array = ["Play"];
+			var valueEvents:Array = ["Time Watched", "Percent Watched"];
+			var validEvents:Array = actionEvents.concat(valueEvents);
+			if(validEvents.indexOf(eventName) == -1) return;
 			
 			if(trackedEvents.indexOf(eventName) == -1) {
 				
-				trace("track play event");
+				trace("tracking event: " + eventName);
+				trace("eventValue", eventValue);
 				
 				// google analytics
-				
-				var category:String = (embeddedMode) ? "Embedded Videos" : "Videos";
-				
-				trace('Google Analytics', category, eventName, videoPermalinkId);
-				
+				var category:String = (embeddedMode) ? "Embedded Videos" : "Videos";				
 				try {
-					GoogleTracker.trackEvent(category, eventName, videoPermalinkId);
+					if(valueEvents.indexOf(eventName) != -1) {
+						trace('Google Analytics', category, eventName, videoPermalinkId, eventValue);
+						GoogleTracker.trackEvent(category, eventName, videoPermalinkId, eventValue);
+					} else {
+						trace('Google Analytics', category, eventName, videoPermalinkId);
+						GoogleTracker.trackEvent(category, eventName, videoPermalinkId);
+					}
 				} catch (error:Error) {
 					trace("Unable to track GoogleAnalytics event");
 				}
 				
-				// app view count
-				if(config.trackPlayUrl) {
+				// app view count (Play event)
+				if(eventName == "Play" && config.trackPlayUrl) {
 					var loader:URLLoader = new URLLoader();
 					var request:URLRequest = new URLRequest(config.trackPlayUrl);				
 					var variables:URLVariables = new URLVariables();
@@ -978,6 +989,22 @@ package com.definition
 		private function genericHTTPStatusHandler(event:HTTPStatusEvent):void {
             trace("genericHTTPStatusHandler: " + event);
         }
+
+		private function startVideoViewTimeTracker():void {
+			trace('startVideoViewTimeTracker');
+			var now:Date = new Date();
+			videoViewTimeStart = now.getTime();
+		}
+		
+		private function stopVideoViewTimeTracker():uint {
+			trace('stopVideoViewTimeTracker');
+			if(!videoViewTimeStart) return videoViewTime;
+			var now:Date = new Date();
+			videoViewTime += (now.getTime() - videoViewTimeStart);	// ms
+			videoViewTimeStart = 0;	// reset
+			trace('videoViewTime', videoViewTime);
+			return videoViewTime;
+		}
 		
 		
 		/* ======================== */
@@ -1187,28 +1214,24 @@ package com.definition
 			if(ExternalInterface.available) {
 				ExternalInterface.addCallback("getCurrentTime", getCurrentTime);
 				ExternalInterface.addCallback("seekToSegment", seekToSegment);
+				ExternalInterface.addCallback("trackViewTime", trackViewTime);
 			}
 		}
 
 		// EXTERNAL METHOD
 		public function getCurrentTime():Number {
-			
 			var currentTime:Number = 0
 			try {
 				currentTime = video.getCurrentTime();
 			} catch(e:Error) {
 				currentTime = 0;
 			}
-			
 			return currentTime;
-			
 		}
 		
 		// EXTERNAL METHOD
 		public function seekToSegment(id:String):void {
-			
 			trace("seekToSegment, id:" + id);
-						
 			var seekTime:Number = 0;
 			for each(var segment:Object in videoSegments) {
 				if(segment.id == id) {
@@ -1216,7 +1239,6 @@ package com.definition
 					break;
 				}
 			}
-			
 			try {
 				video.seekTo(seekTime);
 				video.play();
@@ -1225,6 +1247,19 @@ package com.definition
 			}
 		}
 		
+		// EXTERNAL METHOD
+		public function trackViewTime():void {
+			trace("trackViewTime");
+			try {
+				var videoViewSecs:uint = Math.round(stopVideoViewTimeTracker()/1000);
+				if(!videoViewSecs) return;
+				trackEvent("Time Watched", videoViewSecs);
+				var viewPercent:uint = Math.round((videoViewSecs/videoDuration)*100);
+				trackEvent("Percent Watched", viewPercent);
+			} catch(e:Error) {
+				trace('trackViewTime error', e);
+			}
+		}
 		
 	}
 	
