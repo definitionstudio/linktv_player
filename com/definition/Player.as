@@ -158,6 +158,7 @@ package com.definition
 		private var headerTitle:TextField;
 		private var headerDescr:TextField;
 		private var headerMore:TextField;
+		private var headerPadding:uint = 5;
 		private var scrollBar:Scroller;
 		
 		
@@ -318,6 +319,7 @@ package com.definition
 			headerTitleTF.color = Utilities.convertHexColor(settings.headerTextColor);
 			headerTitleTF.font = uiFont.fontName;
 			headerTitleTF.size = 18;
+			headerTitleTF.leading = 1;
 			
 			headerDescrTF = new TextFormat();
 			headerDescrTF.color = Utilities.convertHexColor(settings.headerTextColor);
@@ -625,6 +627,8 @@ package com.definition
 				posterImgLoader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, posterImgIoErrorHandler);
 			} else {
 				posterImgLoadError = true;
+				// init header
+				_initHeader();
 				// hide loader
 				if(video.isReady()) hideLoading();
 			}
@@ -795,9 +799,7 @@ package com.definition
 			headerBg.addChild(headerBgShape);
 			//headerBg.addEventListener(MouseEvent.CLICK, headerBgClick);		// handled by stage mouse release
 			header.addChild(headerBg);
-			
-			var padding:Number = 5;
-			
+						
 			if(posterImgLoaded) {
 				var thumbImg = new Bitmap(posterImg.bitmapData.clone());
 				var imgAspect:Number = thumbImg.width/thumbImg.height;
@@ -805,11 +807,11 @@ package com.definition
 				thumbImg.smoothing = true;
 				thumbImg.height = thumbMask.height;
 				thumbImg.width = Math.ceil(thumbMask.height*imgAspect);
-				thumbImg.x = padding-Math.floor((thumbImg.width-thumbMask.width)/2);		// center
-				thumbImg.y = padding;
+				thumbImg.x = headerPadding-Math.floor((thumbImg.width-thumbMask.width)/2);		// center
+				thumbImg.y = headerPadding;
 				thumbImg.mask = thumbMask;
-				thumbMask.x = padding;
-				thumbMask.y = padding;
+				thumbMask.x = headerPadding;
+				thumbMask.y = headerPadding;
 				
 				var thumbImgSprite:Sprite = new Sprite();	// workaround for no buttonMode support for Bitmaps
 				thumbImgSprite.addChild(thumbImg);
@@ -822,13 +824,27 @@ package com.definition
 			
 			// title text
 			headerTitle = new TextField();
-			headerTitle.x = posterImgLoaded ? thumbMask.x+thumbMask.width+(padding*2) : padding;
-			headerTitle.y = 11;
-			headerTitle.width = posterImgLoaded ? stage.stageWidth-(thumbMask.x+thumbMask.width)-(padding*2) : stage.stageWidth-(padding*2);
+			headerTitle.x = posterImgLoaded ? thumbMask.x+thumbMask.width+(headerPadding*2) : headerPadding;
+			headerTitle.y = 10;
+			headerTitle.width = posterImgLoaded ? stage.stageWidth-(thumbMask.x+thumbMask.width)-(headerPadding*2) : stage.stageWidth-(headerPadding*2);
+			headerTitle.height = 25;
+			headerTitle.multiline = true;
+			headerTitle.wordWrap = true;
 			headerTitle.autoSize = TextFieldAutoSize.LEFT;
 			headerTitle.selectable = false;
+			headerTitle.mouseWheelEnabled = false;
 			headerTitle.defaultTextFormat = headerTitleTF;
 			headerTitle.text = videoTitle;
+		
+			if(headerTitle.numLines > 1) {
+				// max 2 lines, with elipses
+				if(headerTitle.numLines > 2) {
+					var lastChar:uint = headerTitle.getLineOffset(1) + headerTitle.getLineLength(1);
+					headerTitle.replaceText(lastChar, headerTitle.length, '');
+					headerTitle.replaceText(lastChar-3, lastChar, '...');
+				}
+				headerTitle.y = headerPadding;
+			}
 			
 			var headerTitleSprite:Sprite = new Sprite();	// workaround for no buttonMode support for TextFields
 			headerTitleSprite.addChild(headerTitle);
@@ -842,9 +858,9 @@ package com.definition
 			// descr text
 			if(videoDescription) {
 				headerDescr = new TextField();
-				headerDescr.x = posterImgLoaded ? thumbMask.x+thumbMask.width+11 : padding;
-				headerDescr.y = 35;
-				headerDescr.width = posterImgLoaded ? stage.stageWidth-(thumbMask.x+thumbMask.width)-70 : stage.stageWidth-(padding*2)-70;
+				headerDescr.x = posterImgLoaded ? thumbMask.x+thumbMask.width+11 : headerPadding;
+				headerDescr.y = headerTitle.y + headerTitle.height - Number(headerTitleTF.leading);
+				headerDescr.width = posterImgLoaded ? stage.stageWidth-(thumbMask.x+thumbMask.width)-70 : stage.stageWidth-(headerPadding*2)-70;
 				headerDescr.height = 20;
 				headerDescr.selectable = false;
 				headerDescr.mouseWheelEnabled = false;
@@ -859,8 +875,8 @@ package com.definition
 
 				// more link
 				headerMore = new TextField();
-				headerMore.x = headerDescr.x + descrMetrics.width + 5;
-				headerMore.y = 35;
+				headerMore.x = headerDescr.x + descrMetrics.width + headerPadding;
+				headerMore.y = headerTitle.y + headerTitle.height;
 				headerMore.width = 50;
 				headerMore.height = 20;
 				headerMore.selectable = false;
@@ -875,9 +891,26 @@ package com.definition
 				header.addChild(headerMoreSprite);
 			}
 			
+			headerBgResize(false);
 			header.visible = false;
 			addChild(header);
 			showHeader();
+		}
+		
+		private function headerBgResize(expanded:Boolean) {
+			if(expanded) {
+				headerBgShape.height = stage.stageHeight;
+				headerBg.alpha = (settings.headerBgOpacity > 0.9) ? settings.headerBgOpacity : 0.9;
+			} else {
+				try {
+					headerBgShape.height = headerTitle.y + headerTitle.height + headerDescr.height + headerPadding;
+				} catch(e:Error) {
+					headerBgShape.height = headerTitle.y + headerTitle.height + headerPadding;
+				}
+				var minHeight:uint = thumbMask.height+(headerPadding*2);
+				if(posterImgLoaded && headerBgShape.height < minHeight) headerBgShape.height = minHeight;
+				headerBg.alpha = settings.headerBgOpacity;
+			}
 		}
 		
 		
@@ -894,9 +927,7 @@ package com.definition
 		private function headerMoreClick(e:MouseEvent):void {
 			if(video.isPlaying()) video.pause();
 			
-			headerBgShape.height = stage.stageHeight;
-			headerBg.alpha = (settings.headerBgOpacity > 0.9) ? settings.headerBgOpacity : 0.9;
-			
+			headerBgResize(true);
 			headerDescr.height = stage.stageHeight - headerDescr.y - 40;
 			headerDescr.mouseWheelEnabled = true;
 			
@@ -915,12 +946,11 @@ package com.definition
 		
 		private function headerMoreHide():void {
 			header.removeChild(scrollBar);
-			headerBgShape.height = thumbMask.height+10;
-			headerBg.alpha = settings.headerBgOpacity;
-			
 			headerDescr.height = 20;
 			headerDescr.scrollV = 1;
 			headerDescr.mouseWheelEnabled = false;
+			
+			headerBgResize(false);
 			
 			headerMore.visible = true;
 			
