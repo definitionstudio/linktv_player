@@ -148,6 +148,9 @@
 			var errorMsg:String = "YouTube API error code " + errorCode;
 			
 			switch(errorCode) {
+				case 2:
+					errorMsg = "The requested YouTube video was not found (invalid ID).";
+					break;
 				case 100:
 					errorMsg = "The requested YouTube video was not found or has been removed.";
 					break;
