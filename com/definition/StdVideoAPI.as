@@ -191,8 +191,13 @@
 			if(videoLoaded) stream.soundTransform = new SoundTransform(currentVolume);
 		}
 		
-		public function seekTo(seconds:int):void {
-			if(!videoLoaded) _connectStream();
+		public function seekTo(seconds:int, autoPlay:Boolean=false):void {
+			if(!videoLoaded) {
+				_connectStream();
+				if(!autoPlay) pause();
+			} else if(autoPlay && !videoPlaying) {
+				play();
+			}
 			stream.seek(seconds);
 		}
 		

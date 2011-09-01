@@ -1296,8 +1296,7 @@ package com.definition
 				}
 			}
 			try {
-				video.seekTo(seekTime);
-				video.play();
+				video.seekTo(seekTime, true);
 			} catch(e:Error) {
 				// silent fail
 			}

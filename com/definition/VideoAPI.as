@@ -47,7 +47,7 @@
 		
 		function unMute():void;
 		
-		function seekTo(seconds:int):void;
+		function seekTo(seconds:int, autoPlay:Boolean=false):void;
 		
 		// resize & quality
 		

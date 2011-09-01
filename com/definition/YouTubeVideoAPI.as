@@ -289,8 +289,9 @@
 			YouTubePlayer.unMute();
 		}
 		
-		public function seekTo(seconds:int):void {
+		public function seekTo(seconds:int, autoPlay:Boolean=false):void {
 			YouTubePlayer.seekTo(seconds, true);		// seconds:Number, allowSeekAhead:Boolean
+			if(autoPlay && !videoPlaying) play();
 		}
 		
 		// resize
