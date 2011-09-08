@@ -313,7 +313,7 @@
 			bInfo.segmentTitle.antiAliasType = AntiAliasType.ADVANCED;
 			bInfo.segmentTitle.text = 'Now watching: ';
 			try {
-				if(player.videoSegments[player.currentVideoSegment].title) bInfo.segmentTitle.appendText(player.videoSegments[player.currentVideoSegment].title);
+				if(player.videoSegments[player.currentVideoSegmentIdx].title) bInfo.segmentTitle.appendText(player.videoSegments[player.currentVideoSegmentIdx].title);
 			} catch (error:Error) {
 				trace("Segment title not present: Skipping");
 			}
@@ -367,7 +367,7 @@
 					segmentSprite.name = "segment-" + i;
 					segmentSprite.x = segmentBoxX;
 					
-					var segmentColor:String = (i == player.currentVideoSegment) ? player.settings.segmentNavActiveColor : player.settings.segmentNavColor;
+					var segmentColor:String = (i == player.currentVideoSegmentIdx) ? player.settings.segmentNavActiveColor : player.settings.segmentNavColor;
 					var box:Shape = Utilities.drawBox({
 						color: Utilities.convertHexColor(segmentColor),
 						alpha: player.settings.segmentNavOpacity,
@@ -514,6 +514,7 @@
 		
 		private function progressBarClick(e:MouseEvent):void {
 			player.videoStart = 0;	// reset start time
+			player.segmentChangeLock = false;
 			player.video.seekTo(Math.round(player.stage.mouseX * player.videoDuration / player.stage.stageWidth));
 		}
 		
@@ -589,7 +590,7 @@
 			var segment:Object = player.videoSegments[segmentId];
 			
 			// swap boxes
-			var segmentColor:String = (segmentId == player.currentVideoSegment) ? player.settings.segmentNavActiveColor : player.settings.segmentNavColor;
+			var segmentColor:String = (segmentId == player.currentVideoSegmentIdx) ? player.settings.segmentNavActiveColor : player.settings.segmentNavColor;
 			var newBox:Shape = Utilities.drawBox({
 				color: Utilities.convertHexColor(segmentColor),
 				alpha: player.settings.segmentNavActiveOpacity,
@@ -673,7 +674,7 @@
 			var segmentId:Number = parts[1];
 						
 			// swap boxes
-			var segmentColor:String = (segmentId == player.currentVideoSegment) ? player.settings.segmentNavActiveColor : player.settings.segmentNavColor;
+			var segmentColor:String = (segmentId == player.currentVideoSegmentIdx) ? player.settings.segmentNavActiveColor : player.settings.segmentNavColor;
 			var newBox:Shape = Utilities.drawBox({
 				color: Utilities.convertHexColor(segmentColor),
 				alpha: player.settings.segmentNavOpacity,
@@ -690,11 +691,17 @@
 		}
 		
 		private function segmentClick(e:MouseEvent):void {
-			var parts:Array = e.target.name.split('-');
-			var segmentId:Number = parts[1];
-			var segment:Object = player.videoSegments[segmentId];
-			// seek to start time
-			player.video.seekTo(segment.time);
+			try {
+				var parts:Array = e.target.name.split('-');
+				var segmentId:Number = parts[1];
+				var segment:Object = player.videoSegments[segmentId];
+				// manually update video segment & set lock
+				player.updateCurrentVideoSegment(segmentId);
+				// seek to start time (autoPlay)
+				player.video.seekTo(segment.time, true);
+			} catch (error:Error) {
+				trace(error);
+			}
 		}
 
 		

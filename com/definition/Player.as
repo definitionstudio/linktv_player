@@ -110,7 +110,8 @@ package com.definition
 		internal var videoSegmentThumbs:Array = new Array();
 		private var videoSegmentThumbLoadId:int = 0;
 		
-		internal var currentVideoSegment:Number = 0;
+		internal var currentVideoSegmentIdx:Number = 0;
+		internal var segmentChangeLock:Boolean = false;
 		internal var scrubPlayState:String = null;
 		internal var isHighQuality:Boolean = false;
 		internal var isLargeSize:Boolean = false;			// player dimensions (expanded)
@@ -454,10 +455,12 @@ package com.definition
 				// set initial video segment
 				for(var i:Number = videoSegments.length-1; i>=0; i--) {
 					if(videoStart >= videoSegments[i].time) {
-						currentVideoSegment = i;
+						currentVideoSegmentIdx = i;
 						break;
 					}
 				}
+				
+				if(currentVideoSegmentIdx > 0) segmentChangeLock = true;
 			}
 			
 			// init player settings
@@ -1149,14 +1152,20 @@ package com.definition
 		/* ======================== */
 
 		private function updateDisplay(e:TimerEvent):void {
-			
 			try {
 
 				if(video.isLoaded()) {
 					
 					var currentVideoTime = video.getCurrentTime();
+					
+					if(segmentChangeLock && currentVideoTime > videoSegments[currentVideoSegmentIdx].time) {
+						// target segment start time reached
+						segmentChangeLock = false;
+						trace('** UNLOCK ** segmentIdx:', currentVideoSegmentIdx, ' current time:', currentVideoTime, 'unlock time:', videoSegments[currentVideoSegmentIdx].time);
+					}
 				
 					if(controls.isScrubbing()) {
+						segmentChangeLock = false;
 						var targetVideoTime:Number = Math.round(controls.getScrubPosition()*videoDuration / stage.stageWidth);
 						if(targetVideoTime != Math.round(currentVideoTime)) {
 							trace('SEEKING', targetVideoTime);
@@ -1164,23 +1173,23 @@ package com.definition
 						}
 					} else {
 						// determine current segment from video time
-						var segmentId:Number = 0;
+						var segmentIdx:Number = 0;
 						
-						for(var sid:Number = videoSegments.length-1; sid >= 0; sid--) {
-							if(currentVideoTime >= videoSegments[sid].time) {
-								segmentId = sid;
+						for(var sIdx:Number = videoSegments.length-1; sIdx >= 0; sIdx--) {
+							if(currentVideoTime >= videoSegments[sIdx].time) {
+								segmentIdx = sIdx;
 								break;
 							}
 						}
 						
-						if(segmentId != currentVideoSegment) {
-							trace('SEGMENT CHANGE');
-							// update UI
-							controls.updateActiveSegment(currentVideoSegment, segmentId);
-							// trigger external event
-							triggerExternalEvent( { type:'segmentChange', segment:videoSegments[segmentId].id } );
-							// update var
-							currentVideoSegment = segmentId;
+						if(segmentIdx != currentVideoSegmentIdx) {
+							if(!segmentChangeLock) {
+								trace('SEGMENT CHANGE');
+								updateCurrentVideoSegment(segmentIdx);
+							} else {
+								trace('segment change event DEFERRED ***');
+								trace('current time:', currentVideoTime, 'unlock time:', videoSegments[currentVideoSegmentIdx].time);
+							}
 						}
 						
 						// update progress bar display
@@ -1191,6 +1200,17 @@ package com.definition
 			} catch (error:Error) {
 				trace('updateDisplay error caught',error);
 			}
+		}
+		
+		internal function updateCurrentVideoSegment(segmentIdx:Number):void {
+			// update UI
+			controls.updateActiveSegment(currentVideoSegmentIdx, segmentIdx);
+			// trigger external event
+			triggerExternalEvent( { type:'segmentChange', segment:videoSegments[segmentIdx].id } );
+			// update var
+			currentVideoSegmentIdx = segmentIdx;
+			// set lock
+			segmentChangeLock = true;
 		}
 
 		
@@ -1242,11 +1262,7 @@ package com.definition
 		
 		internal function triggerExternalEvent(eventObj:Object):Object {
 			
-			trace("triggerExternalEvent, externalEventHandler: " + externalEventHandler);
-			
-			try {
-				trace('event type', eventObj.type);
-            } catch (error:Error) {}
+			trace("triggerExternalEvent", JSON.encode(eventObj), externalEventHandler);
 			
 			var result:Object = {};
 			
@@ -1289,16 +1305,19 @@ package com.definition
 		public function seekToSegment(id:String):void {
 			trace("seekToSegment, id:" + id);
 			var seekTime:Number = 0;
+			var segmentIdx:Number = 0;
 			for each(var segment:Object in videoSegments) {
 				if(segment.id == id) {
 					seekTime = segment.time;
 					break;
 				}
+				segmentIdx++;
 			}
 			try {
+				updateCurrentVideoSegment(segmentIdx);
 				video.seekTo(seekTime, true);
 			} catch(e:Error) {
-				// silent fail
+				trace('seekToSegment ERROR', e.message);
 			}
 		}
 		
