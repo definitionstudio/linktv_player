@@ -78,6 +78,7 @@ package com.definition
 		
 		private var trackedEvents:Array = new Array();		// analytics tracking (one-time events)
 		private var GoogleTracker:AnalyticsTracker;
+		private var trackingMode:String = "AS3";
 		
 		private var videoViewTime:uint = 0;					// ms
 		private var videoViewTimeStart:uint = 0;
@@ -476,10 +477,13 @@ package com.definition
 			_initStyles();
 			
 			// setup Google Analytics tracker
-			try {
-				GoogleTracker = new GATracker(this, config.googleAnalyticsId, "AS3", debug);	// display object, property ID, tracking mode, debug mode
-			} catch(e:Error) {
-				trace("error setting up Google Analytics tracker. Probably invalid property ID");
+			if(config.googleAnalyticsMode) trackingMode = config.googleAnalyticsMode;
+			if(trackingMode == "AS3") {
+				try {
+					GoogleTracker = new GATracker(this, config.googleAnalyticsId, trackingMode, debug);	// display object, property ID, tracking mode, debug mode
+				} catch(e:Error) {
+					trace("error setting up Google Analytics tracker. Probably invalid property ID");
+				}
 			}
 			
 			// init video player
@@ -995,17 +999,13 @@ package com.definition
 				trace("eventValue", eventValue);
 				
 				// google analytics
-				var category:String = (embeddedMode) ? "Embedded Videos" : "Videos";				
-				try {
-					if(valueEvents.indexOf(eventName) != -1) {
-						trace('Google Analytics', category, eventName, videoPermalinkId, eventValue);
-						GoogleTracker.trackEvent(category, eventName, videoPermalinkId, eventValue);
-					} else {
-						trace('Google Analytics', category, eventName, videoPermalinkId);
-						GoogleTracker.trackEvent(category, eventName, videoPermalinkId);
-					}
-				} catch (error:Error) {
-					trace("Unable to track GoogleAnalytics event");
+				var category:String = (embeddedMode) ? "Embedded Videos" : "Videos";
+				if(valueEvents.indexOf(eventName) != -1) {
+					trace('Google Analytics', category, eventName, videoPermalinkId, eventValue);
+					processGAEvent(category, eventName, videoPermalinkId, eventValue);
+				} else {
+					trace('Google Analytics', category, eventName, videoPermalinkId);
+					processGAEvent(category, eventName, videoPermalinkId);
 				}
 				
 				// app view count (Play event)
@@ -1035,6 +1035,20 @@ package com.definition
 				trackedEvents.push(eventName);
 			}
 			
+		}
+		
+		private function processGAEvent(category:String, action:String, label:String, value:Number = NaN) {
+			try {
+				if(trackingMode == "AS3") {
+					if(!isNaN(value)) GoogleTracker.trackEvent(category, action, label, value);
+					else GoogleTracker.trackEvent(category, action, label);
+				} else {
+					if(!isNaN(value)) ExternalInterface.call('_gaq.push', ['_trackEvent', category, action, label, value]);
+					else ExternalInterface.call('_gaq.push', ['_trackEvent', category, action, label]);
+				}
+			} catch (error:Error) {
+				trace("Unable to track GoogleAnalytics event", trackingMode, error.toString());
+			}
 		}
 		
 		private function genericSecurityErrorHandler(event:SecurityErrorEvent):void {
