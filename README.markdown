@@ -92,12 +92,16 @@ External Methods
 ----------------
 * getCurrentTime(): Returns playhead time, in seconds
 * seekToSegment(segmentId): Seek to beginning of segment
-
+* trackViewTime(): Trigger view time/percentage analytics events
 
 Player Events
 -------------
 Player events are dispatched to the JavaScript callback function defined in the _eventHandler_ config option. The _eventHandler_ callback will receive a single event object argument. The following events are currently dispatched by the player:
 
+* stateChange (object): dispatched when the video state changes
+	* type (string): "stateChange"
+	* playerId: player DOM ID
+	* state (integer): possible values are unstarted (-1), ended (0), playing (1), paused (2), buffering (3), video cued (5)
 * segmentChange (object): for multi-segment videos, dispatched when playback of a new segment begins
 	* type (string): "segmentChange"
 	* segment (integer): ID of segment beginning playback
