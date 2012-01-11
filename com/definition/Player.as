@@ -572,6 +572,7 @@ package com.definition
             trace('videoAPIStateChangeHandler dispatched');
 			trace('state:', evt.data.state);
 			stopVideoViewTimeTracker();
+			triggerExternalEvent( { type:'stateChange', state:evt.data.state } );
 			switch(evt.data.state) {
 				case video.STATE_PLAYING:
 					startVideoViewTimeTracker();

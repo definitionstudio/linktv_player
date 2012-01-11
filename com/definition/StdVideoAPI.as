@@ -72,6 +72,9 @@
 			video.visible = false;
 			player.videoContainer.addChild(video);	// add to container sprite
 			
+			// dispatch "unstarted" event (for compatibility with YouTube API)
+			dispatchEvent(new CustomEvent("stateChange", false, false, {state:STATE_UNSTARTED}));
+			
 			// connect to Flash Media server
 			connection = new NetConnection();
 			connection.client = this;
@@ -290,7 +293,7 @@
 		
 		private function netStatusHandler(event:NetStatusEvent):void {
 			
-			trace(event.info.code);
+			trace('****** NetStatusEvent ******', event.info.code);
 			
 			switch (event.info.code) {
 				
@@ -300,7 +303,7 @@
 					trace('READY!!!!');
 					ready = true;						// video is ready for playback
 					dispatchEvent(new Event("ready"));	// dispatch custom ready event
-					trace('event dispatched!');
+					dispatchEvent(new CustomEvent("stateChange", false, false, {state:STATE_CUED}));
 					break;
 					
 				case "NetConnection.Connect.Rejected":
