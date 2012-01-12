@@ -262,20 +262,21 @@
 		
 		
 		public function setQualityLevel(idx:*):void {
-						
-			trace("Swap the stream with " + player.videoFiles[idx].path);
 			
-			swappingStreams = true;
-			
-			player.showLoading();
-			
-			// Pause the current stream
-			if(videoPlaying) stream.pause();
-			
-			// reset videoMetaLoaded status before swapping stream
-			videoMetaLoaded = false;
-			
+			trace("** setQualityLevel **");
+
 			if(videoLoaded) {
+				trace("Swap the stream with " + player.videoFiles[idx].path);
+				swappingStreams = true;
+
+				player.showLoading();
+
+				// Pause the current stream
+				if(videoPlaying) stream.pause();
+
+				// reset videoMetaLoaded status before swapping stream
+				videoMetaLoaded = false;
+				
 				// Store the current time
 				var seekTime:Number = stream.time;
 			
