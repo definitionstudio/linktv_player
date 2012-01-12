@@ -505,11 +505,11 @@
 		}
 		
 		private function playButtonClick(e:MouseEvent):void {
-			player.video.play();
+			player.playVideo();
 		}
 		
 		private function pauseButtonClick(e:MouseEvent):void {
-			player.video.pause();
+			player.pauseVideo();
 		}
 		
 		private function progressBarClick(e:MouseEvent):void {

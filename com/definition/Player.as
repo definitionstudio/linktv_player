@@ -523,6 +523,24 @@ package com.definition
 			}
 		}
 		
+		private function _prepareInitialPlayback():void {
+			trace('** _prepareInitialPlayback **');
+			controls.updatePlayState(true);					// update controls
+			playOverlay.visible = false;					// hide overlay icon
+			posterImgContainer.visible = false;				// hide poster img
+			if(!video.hasBusyIndicator()) showLoading();	// show loader
+			hideHeader();									// hide header overlay
+		}
+		
+		public function playVideo():void {
+			if(!video.isLoaded()) _prepareInitialPlayback();
+			video.play();
+		}
+		
+		public function pauseVideo():void {
+			video.pause();
+		}
+		
 		/* ====================== */
 		/* = VIDEO API HANDLERS = */
 		/* ====================== */
@@ -618,7 +636,7 @@ package com.definition
 			trace('keyUpHandler, code: ' + e.keyCode);
 			
 			if(e.keyCode == 32) {		// SPACE bar
-				(video.isPlaying()) ? video.pause() : video.play();
+				(video.isPlaying()) ? pauseVideo() : playVideo();
 			}
 		}
 		
@@ -785,7 +803,7 @@ package com.definition
 			playOverlay.alpha = 0.7;
 		}
 		private function playOverlayClick(e:MouseEvent):void {
-			video.play();
+			playVideo();
 		}
 		
 		
@@ -934,7 +952,7 @@ package com.definition
 		}
 		
 		private function headerMoreClick(e:MouseEvent):void {
-			if(video.isPlaying()) video.pause();
+			if(video.isPlaying()) pauseVideo();
 			
 			headerBgResize(true);
 			headerDescr.height = stage.stageHeight - headerDescr.y - 40;
@@ -1149,14 +1167,14 @@ package com.definition
 		
 		internal function startScrub() {
 			scrubPlayState = video.isPlaying() ? 'playing' : 'paused';
-			if(video.isPlaying()) video.pause();
+			if(video.isPlaying()) pauseVideo();
 		}
 		internal function stopScrub() {
 			if(!video.isLoaded() && video.isReady()) {
 				// initial load/play
 				video.seekTo(Math.round(controls.getScrubPosition()*videoDuration / stage.stageWidth));
 			} else if(scrubPlayState == 'playing') {
-				video.play();	// resume video
+				playVideo();	// resume video
 			}
 			scrubPlayState = null;
 			controls.stopScrubbing();
