@@ -594,6 +594,7 @@ package com.definition
 					controls.updatePlayState(false);		// update controls
 					hideLoading();							// hide loader
 					showHeader();							// display header (if applicable)
+					playOverlay.visible = true;				// show overlay icon
 					break;
 			}
         }
