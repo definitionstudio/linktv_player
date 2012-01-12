@@ -519,10 +519,10 @@
 		}
 		
 		private function scrubberMouseDown(e:MouseEvent):void {
-			// init scrub
-			player.startScrub();
 			// set status flag
 			scrubbing = true;
+			// init scrub
+			player.startScrub();
 			// start drag
 			scrubber.startDrag(false, new Rectangle(0, e.target.y, controlsWidth, 0));
 		}

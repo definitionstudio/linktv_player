@@ -584,8 +584,8 @@ package com.definition
 					trackEvent('Play');						// analytics
 					break;
 				case video.STATE_PAUSED:
-					controls.updatePlayState(false);		// update controls
-					showHeader();							// display header (if applicable)
+					controls.updatePlayState(false);			// update controls
+					if(!controls.isScrubbing()) showHeader();	// display header (if applicable)
 					break;
 				case video.STATE_BUFFERING:
 					if(!video.isComplete() && !video.hasBusyIndicator()) showLoading();		// show loader

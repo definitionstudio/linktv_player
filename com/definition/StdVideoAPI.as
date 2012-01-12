@@ -29,7 +29,7 @@
 		private var connection:NetConnection;
 		private var stream:NetStream;
 		private var video:Video;
-		
+		private var progressive:Boolean = false;
 		private var videoMeta:Object;
 		
 		private var videoMetaLoaded:Boolean = false;
@@ -74,6 +74,8 @@
 			
 			// dispatch "unstarted" event (for compatibility with YouTube API)
 			dispatchEvent(new CustomEvent("stateChange", false, false, {state:STATE_UNSTARTED}));
+			
+			progressive = (player.mediaServerURL == null) ? true : false;
 			
 			// connect to Flash Media server
 			connection = new NetConnection();
@@ -167,21 +169,26 @@
 		// playback controls
 		
 		public function play():void {
+			videoPlaying = true;
 			if(!videoLoaded) {
 				_connectStream();
 			} else if(videoComplete) {
 				trace('**** VIDEO COMPLETE ****');
 				// restart stream
+				videoComplete = false;
 				stream.play(player.videoFiles[qualityLevel].path);
 			} else {
 				stream.resume();
+				if(progressive) dispatchEvent(new CustomEvent("stateChange", false, false, {state:STATE_PLAYING}));
 			}
-			videoPlaying = true;
 		}
 		
 		public function pause():void {
-			if(videoLoaded) stream.pause();
 			videoPlaying = false;
+			if(videoLoaded) {
+				stream.pause();
+				if(progressive) dispatchEvent(new CustomEvent("stateChange", false, false, {state:STATE_PAUSED}));
+			}
 		}
 		
 		public function mute():void {
@@ -276,10 +283,18 @@
 				stream.play(player.videoFiles[idx].path);
 				
 				// Seek to the saved time in the new stream
-				stream.seek(seekTime);
+				if(progressive) {
+					stream.seek(0);
+				} else {
+					stream.seek(seekTime);
+				}
 				
-				// Make sure the stream is playing
-				if(videoPlaying) stream.resume();
+				// Make sure the stream is playing (streaming) or paused (progressive)
+				if(progressive && !videoPlaying) {
+					stream.pause();
+				} else if(videoPlaying) {
+					stream.resume();
+				}
 			}
 			
 			// set current quality level
@@ -337,7 +352,9 @@
 					break;
 					
 				case "NetStream.Buffer.Full":
-				
+					
+					player.hideLoading();
+					
 					// dispatch custom event
 					if(videoPlaying) dispatchEvent(new CustomEvent("stateChange", false, false, {state:STATE_PLAYING}));
 					break;
@@ -349,22 +366,27 @@
 					// dispatch custom event
 					if(!swappingStreams) {
 						videoComplete = true;
+						videoPlaying = false;
 						dispatchEvent(new CustomEvent("stateChange", false, false, {state:STATE_ENDED}));
 					}
 					break;
 					
 				case "NetStream.Play.Start":
 				
-					// dispatch custom PLAYING event
-					if(videoPlaying && !swappingStreams) dispatchEvent(new CustomEvent("stateChange", false, false, {state:STATE_PLAYING}));
+					if(progressive && swappingStreams) {
+						swappingStreams = false;
+						player.hideLoading();
+					} else if(videoPlaying && !swappingStreams) {
+						dispatchEvent(new CustomEvent("stateChange", false, false, {state:STATE_PLAYING}));
+					}
 					break;
 					
-				case "NetStream.Play.Reset":
+				case "NetStream.Play.Reset":	// fires only with streaming source
 				
 					if(swappingStreams) swappingStreams = false;	// reset quality change status
 					break;
 					
-				case "NetStream.Pause.Notify":
+				case "NetStream.Pause.Notify":	// fires only with streaming source
 				
 					// dispatch custom event
 					dispatchEvent(new CustomEvent("stateChange", false, false, {state:STATE_PAUSED}));

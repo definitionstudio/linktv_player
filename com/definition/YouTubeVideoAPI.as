@@ -274,6 +274,7 @@
 		// playback controls
 		
 		public function play():void {
+			if(videoComplete) videoComplete = false;
 			YouTubePlayer.playVideo();
 		}
 		
