@@ -41,13 +41,13 @@ Configuration
 * permalinkId (string): Video GUID
 * permalinkUrl (string): Video URL
 * streamHost (string): RTMP host, with prefix
-* mediaType (string): "internal" or "youtube"
-* mediaStatus (object)
+* mediaType (string): "internal", "youtube", "brightcove"
+* mediaStatus (object): set custom video unavailable message (optional)
 	* available (boolean)
 	* message (string)
 * media (array)
 	* (object):
-		* url (string): Internal or YouTube URL
+		* url (string): media file URL, YouTube URL or Brightcove video ID
 		* size (integer): File size, in bytes
 * duration (integer): Video duration, in seconds
 * title (string): Video title
@@ -86,7 +86,8 @@ Configuration
 	* tooltipBgColor (string): Hex color
 	* tooltipBgOpacity (float): Decimal, 0.0 – 1.0
 	* tooltipTextColor (string): Hex color
-
+* brightcovePlayerId (integer): required for "brightcove" mediaType
+* brightcovePlayerKey (string): required for "brightcove" mediaType
 
 External Methods
 ----------------

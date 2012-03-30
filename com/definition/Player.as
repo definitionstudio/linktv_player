@@ -83,7 +83,7 @@ package com.definition
 		private var videoViewTime:uint = 0;					// ms
 		private var videoViewTimeStart:uint = 0;
 		
-		private var config:Object = new Object();
+		internal var config:Object = new Object();
 		private var configUrl:String = null;
 		private var configLoader:URLLoader;
 		private var configLoaded:Boolean = false;
@@ -103,8 +103,8 @@ package com.definition
 		internal var videoFiles:Array = new Array();
 		internal var mediaServerURL:String = null;			// set to null for progressive video
 		
-		private var videoPermalinkId:String = null;
-		private var videoPermalinkURL:String = null;
+		internal var videoPermalinkId:String = null;
+		internal var videoPermalinkURL:String = null;
 		private var videoDescription:String = null;
 		private var videoMediaType:String = 'internal';		// default
 		
@@ -555,6 +555,9 @@ package com.definition
 				case 'youtube':
 					video = new YouTubeVideoAPI(this, stage.stageWidth, stage.stageHeight);
 					break;
+				case 'brightcove':
+					video = new BrightcoveVideoAPI(this, stage.stageWidth, stage.stageHeight);
+					break;
 				default:
 					displayMessage('Error loading video player.');
 					return;
@@ -574,7 +577,7 @@ package com.definition
 			
 			if(!uiDrawn && !loadError) {
 				// init controls
-				_initControls('default');
+				if(!video.hasControls()) _initControls('default');
 				// init keyboard controls
 				_initKeyboardControls();
 				// load overlay icon

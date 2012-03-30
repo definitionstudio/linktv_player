@@ -141,6 +141,10 @@
 			return false;
 		}
 		
+		public function hasControls():Boolean {
+			return false;
+		}
+		
 		public function getCurrentTime():Number {
 			return (isLoaded()) ? stream.time : player.videoStart;
 		}

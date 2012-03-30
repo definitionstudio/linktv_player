@@ -25,6 +25,8 @@
 		
 		function hasPosterImage():Boolean;		// don't display poster img if player has its own
 		
+		function hasControls():Boolean;			// don't draw controls if player has its own
+		
 		function getCurrentTime():Number;
 		
 		function getDuration():Number;

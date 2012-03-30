@@ -245,6 +245,10 @@
 			return true;
 		}
 		
+		public function hasControls():Boolean {
+			return false;
+		}
+		
 		public function getCurrentTime():Number {
 			return (isLoaded()) ? YouTubePlayer.getCurrentTime() : player.videoStart;
 		}
