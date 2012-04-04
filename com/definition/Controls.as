@@ -517,7 +517,7 @@
 		private function progressBarClick(e:MouseEvent):void {
 			player.videoStart = 0;	// reset start time
 			player.segmentChangeLock = false;
-			player.video.seekTo(Math.round(player.stage.mouseX * player.videoDuration / player.stage.stageWidth));
+			player.seekVideo(Math.round(player.stage.mouseX * player.videoDuration / player.stage.stageWidth));
 		}
 		
 		private function scrubberMouseDown(e:MouseEvent):void {
@@ -700,7 +700,7 @@
 				// manually update video segment & set lock
 				player.updateCurrentVideoSegment(segmentId);
 				// seek to start time (autoPlay)
-				player.video.seekTo(segment.time, true);
+				player.seekVideo(segment.time, true);
 			} catch (error:Error) {
 				trace(error);
 			}

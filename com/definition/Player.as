@@ -540,6 +540,10 @@ package com.definition
 			video.pause();
 		}
 		
+		public function seekVideo(seconds:int, autoPlay:Boolean=false):void {
+			video.seekTo(seconds, autoPlay);
+		}
+		
 		/* ====================== */
 		/* = VIDEO API HANDLERS = */
 		/* ====================== */
@@ -1175,7 +1179,7 @@ package com.definition
 		internal function stopScrub() {
 			if(!video.isLoaded() && video.isReady()) {
 				// initial load/play
-				video.seekTo(Math.round(controls.getScrubPosition()*videoDuration / stage.stageWidth));
+				seekVideo(Math.round(controls.getScrubPosition()*videoDuration / stage.stageWidth));
 			} else if(scrubPlayState == 'playing') {
 				playVideo();	// resume video
 			}
@@ -1206,7 +1210,7 @@ package com.definition
 						var targetVideoTime:Number = Math.round(controls.getScrubPosition()*videoDuration / stage.stageWidth);
 						if(targetVideoTime != Math.round(currentVideoTime)) {
 							trace('SEEKING', targetVideoTime);
-							video.seekTo(targetVideoTime);
+							seekVideo(targetVideoTime);
 						}
 					} else {
 						// determine current segment from video time
@@ -1321,8 +1325,11 @@ package com.definition
 		
 		private function _initExternalCallbacks():void {
 			if(ExternalInterface.available) {
-				ExternalInterface.addCallback("getCurrentTime", getCurrentTime);
+				ExternalInterface.addCallback("play", playVideo);
+				ExternalInterface.addCallback("pause", pauseVideo);
+				ExternalInterface.addCallback("seek", seekVideo);
 				ExternalInterface.addCallback("seekToSegment", seekToSegment);
+				ExternalInterface.addCallback("getCurrentTime", getCurrentTime);
 				ExternalInterface.addCallback("trackViewTime", trackViewTime);
 			}
 		}
@@ -1352,7 +1359,7 @@ package com.definition
 			}
 			try {
 				updateCurrentVideoSegment(segmentIdx);
-				video.seekTo(seekTime, true);
+				seekVideo(seekTime, true);
 			} catch(e:Error) {
 				trace('seekToSegment ERROR', e.message);
 			}
