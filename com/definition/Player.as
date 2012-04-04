@@ -1038,6 +1038,7 @@ package com.definition
 					variables._method = 'post';
 					if(videoPermalinkId) variables.permalink = videoPermalinkId;
 					if(config.userId) variables.user_id = config.userId;
+					variables.embedded = embeddedMode;
 					request.method = URLRequestMethod.POST;
 					request.data = variables;
 
