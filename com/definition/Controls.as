@@ -100,6 +100,8 @@
 			
 			trace('controls.draw()');
 			
+			if(player.video.hasControls()) return;
+			
 			// set vars
 			if(mode) controlsMode = mode;
 			controlsWidth = player.stage.stageWidth;

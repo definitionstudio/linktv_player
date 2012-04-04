@@ -576,7 +576,7 @@ package com.definition
 			
 			if(!uiDrawn && !loadError) {
 				// init controls
-				if(!video.hasControls()) _initControls('default');
+				_initControls('default');
 				// init keyboard controls
 				_initKeyboardControls();
 				// load overlay icon
