@@ -38,6 +38,7 @@ Configuration
 * embedded (boolean): true for embedded display mode (iframe)
 * fullscreen (boolean): false to disable fullscreen controls
 * resize (boolean): true to enable resize controls (requires _eventHandler_, ignored if _embedded_ = true)
+* autoplay (boolean): true to begin playback without user interaction
 * permalinkId (string): Video GUID
 * permalinkUrl (string): Video URL
 * streamHost (string): RTMP host, with prefix

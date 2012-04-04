@@ -96,6 +96,7 @@ package com.definition
 		internal var posterImgContainer:Sprite;
 		
 		// video data
+		internal var videoAutoPlay:Boolean = false;
 		internal var videoStart:Number = 0;
 		internal var videoTitle:String = null;
 		internal var videoDuration:Number = 0;
@@ -396,6 +397,7 @@ package com.definition
 			if(config.playerId) playerDOMId = config.playerId;
 			if(config.startTime) videoStart = Number(config.startTime);
 			if(isNaN(videoStart)) videoStart = 0;	// fix invalid start time
+			if(config.autoplay) videoAutoPlay = true;
 			
 			// init video status
 			var videoStatusAvailable = config.media.length ? true : false;
@@ -590,6 +592,7 @@ package com.definition
 			}
 			
 			if(posterImgLoaded || posterImgLoadError) hideLoading();
+			if(videoAutoPlay) playVideo();
         }
 		
 		private function videoAPIStateChangeHandler(evt:CustomEvent):void {

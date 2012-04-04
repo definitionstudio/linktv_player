@@ -77,7 +77,8 @@ package com.definition
 				playerID: player.config.brightcovePlayerId,
 				playerKey: player.config.brightcovePlayerKey,
 				'@videoPlayer': player.videoFiles[0].path,
-				linkBaseURL: player.videoPermalinkURL
+				linkBaseURL: player.videoPermalinkURL,
+				autoStart: player.videoAutoPlay
 			}
 			
 			createPlayer(config);
@@ -126,13 +127,7 @@ package com.definition
 		public function onTemplateLoaded():void {
 			trace('****** bc onTemplateLoaded');
 			dispatchEvent(new Event("templateLoaded"));
-			
-			player.videoContainer.addChild(this);
-			
-			videoLoaded = true;					// initial load action
-			ready = true;						// video is ready for playback
-			dispatchEvent(new Event("ready"));	// dispatch custom ready event
-			
+
 			bcVideoPlayer = getModule("videoPlayer");
 			bcVideoPlayer.addEventListener("mediaError", onMediaError);
 			bcVideoPlayer.addEventListener("mediaChange", onMediaChange);
@@ -141,6 +136,11 @@ package com.definition
 			bcVideoPlayer.addEventListener("mediaComplete", onMediaComplete);
 			bcVideoPlayer.addEventListener("mediaBufferBegin", onMediaBufferBegin);
 			bcVideoPlayer.addEventListener("mediaBufferComplete", onMediaBufferComplete);
+			
+			player.videoContainer.addChild(this);
+			
+			ready = true;						// video is ready for playback
+			dispatchEvent(new Event("ready"));	// dispatch custom ready event
 		}
 
 		public function getModule(module:String):Object {
@@ -154,6 +154,7 @@ package com.definition
 			dispatchEvent(new CustomEvent("error", false, false, {message:"The video could not be loaded."}));
 		}
 		function onMediaChange(event:Event):void {
+			videoLoaded = true;					// initial load action
 			dispatchEvent(new CustomEvent("stateChange", false, false, {state:STATE_CUED}));
 		}
 		function onMediaPlay(event:Event):void {
