@@ -398,13 +398,12 @@ package com.definition
 			if(isNaN(videoStart)) videoStart = 0;	// fix invalid start time
 			
 			// init video status
-			var videoStatusAvailable = false;
+			var videoStatusAvailable = config.media.length ? true : false;
 			var videoStatusMsg = "The requested video is not available.";
 			
 			try {
-				if(config.mediaStatus.available) videoStatusAvailable = true;
-				if(!videoStatusAvailable && config.mediaStatus.message != '') videoStatusMsg = config.mediaStatus.message;
-				if(!config.media.length) videoStatusAvailable = false;
+				if(config.mediaStatus && config.mediaStatus.available === false) videoStatusAvailable = false;
+				if(!videoStatusAvailable && config.mediaStatus.message.length) videoStatusMsg = config.mediaStatus.message;
 			} catch(e:Error) {
 				videoStatusAvailable = false;
 			}
