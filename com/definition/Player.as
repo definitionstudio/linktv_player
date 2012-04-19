@@ -1327,13 +1327,19 @@ package com.definition
 		}
 		
 		private function _initExternalCallbacks():void {
-			if(ExternalInterface.available) {
-				ExternalInterface.addCallback("play", playVideo);
-				ExternalInterface.addCallback("pause", pauseVideo);
-				ExternalInterface.addCallback("seek", seekVideo);
-				ExternalInterface.addCallback("seekToSegment", seekToSegment);
-				ExternalInterface.addCallback("getCurrentTime", getCurrentTime);
-				ExternalInterface.addCallback("trackViewTime", trackViewTime);
+			try {
+				if(ExternalInterface.available) {
+					ExternalInterface.addCallback("play", playVideo);
+					ExternalInterface.addCallback("pause", pauseVideo);
+					ExternalInterface.addCallback("seek", seekVideo);
+					ExternalInterface.addCallback("seekToSegment", seekToSegment);
+					ExternalInterface.addCallback("getCurrentTime", getCurrentTime);
+					ExternalInterface.addCallback("trackViewTime", trackViewTime);
+				}
+			} catch (error:SecurityError) {
+				trace("A SecurityError occurred: " + error.message + "\n");
+			} catch (error:Error) {
+				trace("An Error occurred: " + error.message + "\n");
 			}
 		}
 
