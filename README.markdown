@@ -63,7 +63,7 @@ Configuration
 		* thumbnail (string): Image URL
 * trackPlayUrl (string): URL for tracking play event (POST)
 * userId (string): Optional user ID for play event tracking
-* googleAnalyticsId (string): Google Analytics ID for GA event tracking
+* googleAnalyticsId (string): Google Analytics ID for GA event tracking (required if googleAnalyticsMode is "AS3")
 * googleAnalyticsMode (string): "AS3" or "Bridge" (default: "AS3"). Bridge mode supports [GA async tracking](http://code.google.com/apis/analytics/docs/tracking/asyncUsageGuide.html). See [gaforflash docs](http://code.google.com/apis/analytics/docs/tracking/flashTrackingIntro.html#trackingModes) for more info.
 * player (object): Player UI customizations
 	* controlsBgColor (string): Hex color
