@@ -44,7 +44,7 @@
 			
 			// init SWFObject
 			// http://code.google.com/p/swfobject/wiki/documentation
-			var flashvars = { config: JSON.stringify(playerConfig) };
+			var flashvars = { config: encodeURIComponent(JSON.stringify(playerConfig)) };
 			var params = { allowfullscreen:true, allowscriptaccess:"always", wmode:"transparent" };
 			var attributes = { id: playerId, width: playerWidth, height: playerHeight };
 			
