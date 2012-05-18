@@ -92,9 +92,9 @@ Configuration
 
 External Methods
 ----------------
-* play(): Begin playback
-* pause(): Pause playback
-* seek(seconds:integer, autoplay:boolean): Seek to time, in seconds, with optional autoplay
+* playVideo(): Begin playback
+* pauseVideo(): Pause playback
+* seekTo(seconds:integer, autoplay:boolean): Seek to time, in seconds, with optional autoplay
 * seekToSegment(segmentId): Seek to beginning of segment
 * getCurrentTime(): Returns playhead time, in seconds
 * trackViewTime(): Trigger view time/percentage analytics events

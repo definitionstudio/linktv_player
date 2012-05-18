@@ -1329,9 +1329,9 @@ package com.definition
 		private function _initExternalCallbacks():void {
 			try {
 				if(ExternalInterface.available) {
-					ExternalInterface.addCallback("play", playVideo);
-					ExternalInterface.addCallback("pause", pauseVideo);
-					ExternalInterface.addCallback("seek", seekVideo);
+					ExternalInterface.addCallback("playVideo", playVideo);
+					ExternalInterface.addCallback("pauseVideo", pauseVideo);
+					ExternalInterface.addCallback("seekTo", seekVideo);
 					ExternalInterface.addCallback("seekToSegment", seekToSegment);
 					ExternalInterface.addCallback("getCurrentTime", getCurrentTime);
 					ExternalInterface.addCallback("trackViewTime", trackViewTime);
